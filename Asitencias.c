@@ -3,6 +3,12 @@
 #include <string.h>
 #include <stdbool.h>
 
+typedef struct fecha{
+    int dia;
+    int mes;
+    int año;
+}TFECHA;
+
 typedef struct nombre{
     char nombres[65];
     char apell_p[35];
@@ -17,47 +23,74 @@ typedef struct alumno{
 }TALUMNO;
 
 typedef struct dia{
-    int dia;
+    TFECHA fecha;
+    bool asistencia_del_dia;
     struct dia *siguiente;
     TALUMNO *lista_alumnos;
 }TDIA;
 
 void agrega_alumnos(TALUMNO *cab, TALUMNO *inicio, int cantidad_alumnos);
+void crea_dia(TDIA **cab_dia, TDIA *inicio_dia, TALUMNO *Lista_original);
+void mostrar_listas(TALUMNO *cab);
+TALUMNO *copiar_lista_alumnos(TALUMNO *original);
 
 Nodo* crearnodo(char nombre[]);
 Nodo* insertarinicio(Nodo* cabeza, char nombre[]);
 void tomarAsistencia(Nodo* cabeza, int dia);
 void mostrarlista(Nodo* cabeza);
 
-int main() {
-    int opcion;
+int main(){
+    int opcion, cont = 1, cantidad_alumnos = 0, cantidad_dias = 0;
     char nombre[50];
-    int cantidad_alumnos = 0;
     TALUMNO *cab, *inicio;
+    TDIA *cab_dia, *inicio_dia, *lista_original;
+
+    cab = cab_dia = inicio = inicio_dia = lista_original = NULL;
     
-    printf("Ingresa la cantidad de alumnos: ");
+    printf("Primero, ingrese la cantidad de alumnos: ");
     scanf("%i", &cantidad_alumnos);
-    
+
+    printf("Segundo, ingrese la cantidad de dias a registrar: ");
+    scanf("%i", &cantidad_dias);
 
     agrega_alumnos(cab, inicio, cantidad_alumnos);
-
-    do {
-        printf("\n1. Agregar alumno\n");
-        printf("2. Mostrar lista con asistencias\n");
-        printf("3. Tomar asistencia\n");
-        printf("4. Salir\n");
+    
+    do{
+        printf("\n---MENU---\n");
+        printf("1. Mostrar listas\n");
+        printf("2. Tomar asistencia\n");
+        printf("3. Salir\n");
         printf("Elige una opcion: ");
-        scanf("%d", &opcion);
+        scanf("%i", &opcion);
 
-        switch (opcion) {
-            case 1:
-                printf("Ingresa el nombre del alumno: ");
-                scanf(" %[^\n]", nombre);
-                cabeza = insertarinicio(cabeza, nombre);
+        switch(opcion){
+            case 1:{
+                int opc;
+
+                if(cab == NULL) {
+                    printf("La lista está vacía\n");
+                    printf("Regresando al menú principal...\n");
+                }else{
+                    printf("\n---MENU MOSTRAR---\n");
+                    printf("1. Mostrar listas completas\n");
+                    printf("2. Mostrar un alumno en particular\n");
+                    printf("3. Mostrar un dia en particular\n");
+                    printf("Elige una opcion: ");
+                    scanf("%i", &opc);
+                }
                 break;
-            case 2:
-                mostrarlista(cabeza);
+            }
+            case 2:{
+                int opc;
+
+                if(cab == NULL) {
+                    printf("La lista está vacía\n");
+                    printf("Regresando al menú principal...\n");
+                }else{
+                    
+                }
                 break;
+            }
             case 3:
                 dia++;
                 tomarAsistencia(cabeza, dia);
@@ -68,7 +101,7 @@ int main() {
             default:
                 printf("Opcion no valida\n");
         }
-    } while (opcion != 4);
+    }while(opcion != 4);
 
     while (cabeza != NULL) {
         temp = cabeza;
@@ -81,6 +114,45 @@ int main() {
 }
 
 /*--- Definiciones de Funciones ---*/
+
+void crea_dia(TDIA **cab_dia, TDIA *inicio_dia, TALUMNO *lista_original){
+    TDIA *nuevo;
+    TFECHA fecha;
+
+    nuevo = (TDIA*) malloc(sizeof(TDIA));
+
+    if(nuevo == NULL){
+        printf("Error de memoria\n");
+        exit(1);
+    }
+
+    printf("\nIngresa el numero del dia: ");
+    scanf("%i", &fecha.dia);
+    printf("\nIngresa el numero del mes: ");
+    scanf("%i", &fecha.mes);
+    printf("\nIngresa el numero del año: ");
+    scanf("%i", &fecha.año);
+
+    nuevo->fecha.dia = fecha.dia;
+    nuevo->fecha.mes = fecha.mes;
+    nuevo->fecha.año = fecha.año;
+    nuevo->asistencia_del_dia = false;
+    nuevo->siguiente = NULL;
+    nuevo->lista_alumnos = copiar_lista_alumnos(lista_original);
+
+    if(*cab_dia == NULL){
+        *cab_dia = nuevo;
+        inicio_dia = *cab_dia;
+    }else{
+        TDIA *aux = *cab_dia;
+
+        while(aux->siguiente != NULL){
+            aux = aux->siguiente;
+        }
+
+        aux->siguiente = nuevo;
+    }
+}
 
 void agrega_alumnos(TALUMNO *cab, TALUMNO *inicio, int cantidad_alumnos){
     TALUMNO *nuevo, *aux;
@@ -119,6 +191,50 @@ void agrega_alumnos(TALUMNO *cab, TALUMNO *inicio, int cantidad_alumnos){
             aux->siguiente = nuevo;
         }
     }
+}
+
+TALUMNO *copiar_lista_alumnos(TALUMNO *original){
+    if(original == NULL){
+        return NULL;
+    }
+
+    TALUMNO *nuevo_cab = NULL;
+    TALUMNO *nuevo = (TALUMNO*) malloc(sizeof(TALUMNO));
+    TALUMNO *actual_original = original->siguiente;
+    TALUMNO *actual_nuevo = nuevo_cab;
+
+    if(nuevo == NULL){
+        printf("Error de memoria\n");
+        exit(1);
+    }
+
+    //copiar los datos del nodo original al nuevo nodo
+    memcpy(nuevo->nombre, original->nombre, sizeof(TNOMBRE) * 50);
+    nuevo->asistencias = original->asistencias;
+    nuevo->ID = original->ID;
+    nuevo->siguiente = NULL;
+    nuevo_cab = nuevo;
+
+    //copiar los nodos restantes
+    while(actual_nuevo != NULL){
+        nuevo = (TALUMNO*) malloc(sizeof(TALUMNO));
+
+        if(nuevo == NULL){
+            printf("Error de memoria\n");
+            exit(1);
+        }
+
+        memcpy(nuevo->nombre, actual_original->nombre, sizeof(TNOMBRE) * 50);
+        nuevo->asistencias = actual_original->asistencias;
+        nuevo->ID = actual_original->ID;
+        nuevo->siguiente = NULL;
+
+        actual_nuevo->siguiente = nuevo;
+        actual_nuevo = nuevo;
+        actual_original = actual_original->siguiente;
+    }
+
+    return nuevo_cab;
 }
 
 Nodo* crearnodo(char nombre[]) {
