@@ -12,6 +12,7 @@ typedef struct nombre{
 typedef struct alumno{
     TNOMBRE nombre[50];
     bool asistencias;
+    int ID;
     struct alumno *siguiente;
 }TALUMNO;
 
@@ -21,17 +22,24 @@ typedef struct dia{
     TALUMNO *lista_alumnos;
 }TDIA;
 
+void agrega_alumnos(TALUMNO *cab, TALUMNO *inicio, int cantidad_alumnos);
+
 Nodo* crearnodo(char nombre[]);
 Nodo* insertarinicio(Nodo* cabeza, char nombre[]);
 void tomarAsistencia(Nodo* cabeza, int dia);
 void mostrarlista(Nodo* cabeza);
 
 int main() {
-    Nodo* cabeza = NULL;
-    Nodo* temp;
     int opcion;
     char nombre[50];
-    int dia = 0;
+    int cantidad_alumnos = 0;
+    TALUMNO *cab, *inicio;
+    
+    printf("Ingresa la cantidad de alumnos: ");
+    scanf("%i", &cantidad_alumnos);
+    
+
+    agrega_alumnos(cab, inicio, cantidad_alumnos);
 
     do {
         printf("\n1. Agregar alumno\n");
@@ -73,6 +81,45 @@ int main() {
 }
 
 /*--- Definiciones de Funciones ---*/
+
+void agrega_alumnos(TALUMNO *cab, TALUMNO *inicio, int cantidad_alumnos){
+    TALUMNO *nuevo, *aux;
+    char nombres[65], apell_p[35], apell_m[35];
+
+    for(int i=0; i<cantidad_alumnos; i++){
+        nuevo = (TALUMNO*) malloc(sizeof(TALUMNO));
+        
+        if(nuevo == NULL){
+            printf("Error de memoria\n");
+            exit(1);
+        }
+
+        printf("Ingresa el nombre del alumno %d: ", i+1);
+        gets(nombres);
+        printf("Ingresa el apellido paterno del alumno %d: ", i+1);
+        gets(apell_p);
+        printf("Ingresa el apellido materno del alumno %d: ", i+1);
+        gets(apell_m);
+
+        strcpy(nuevo->nombre->nombres, nombres);
+        strcpy(nuevo->nombre->apell_p, apell_p);
+        strcpy(nuevo->nombre->apell_m, apell_m);
+        nuevo->asistencias = false;
+        nuevo->siguiente = NULL;
+        nuevo->ID = i;
+
+        if(cab == NULL){
+            cab = nuevo;
+            inicio = cab;
+        }else{
+            aux = cab;
+            while(aux->siguiente != NULL){
+                aux = aux->siguiente;
+            }
+            aux->siguiente = nuevo;
+        }
+    }
+}
 
 Nodo* crearnodo(char nombre[]) {
     Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
