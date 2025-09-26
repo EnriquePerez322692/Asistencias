@@ -284,7 +284,7 @@ void tomar_lista(TDIA *cab, TFECHA fecha, TALUMNO *lista_alumnos){
     aux->fecha.año = fecha.año;
     aux->asistencia_del_dia = true;
 
-    aux->lista_alumnos = ;
+    //aux->lista_alumnos = ;
 }
 
 /*
