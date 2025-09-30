@@ -31,42 +31,39 @@ typedef struct dia{
 
 void ordenar_alfabeticamente(TDIA *cab);
 void ordenar_por_ID(TDIA *cab);
+
 void mostrar_listas(TDIA *cab);
 void mostrar_alumno(TDIA *cab, TNOMBRE nombre);
 void mostrar_dia(TDIA *cab, TFECHA fecha);
 void mostrar_ID(TDIA *cab, int ID);
+
+void elimiminar_alumno(TALUMNO **cab, int ID, bool *confirmacion);
 void crea_dia(TDIA **cab_dia, TALUMNO *lista_original, TFECHA fecha);
-void agrega_alumnos(TALUMNO *cab, TALUMNO *inicio, int cantidad_alumnos);
+void agrega_alumnos(TALUMNO *cab, int cantidad_alumnos);
 TALUMNO *copiar_lista_alumnos(TALUMNO *original);
 void tomar_asistencia(TALUMNO *cab);
-
-/*
-Nodo* crearnodo(char nombre[]);
-Nodo* insertarinicio(Nodo* cabeza, char nombre[]);
-void tomarAsistencia(Nodo* cabeza, int dia);
-void mostrarlista(Nodo* cabeza);
-*/
 
 int main(){
     int opcion, cantidad_alumnos = 0;
     TNOMBRE nombre; //Estoy corrigiendo al momento de buscar a una alumno y ordenarlo con su nombre
-    TALUMNO *cab, *inicio;
+    TALUMNO *cab;
     TDIA *cab_dia, *lista_original;
 
-    cab = cab_dia = inicio = lista_original = NULL;
+    cab = cab_dia = lista_original = NULL;
     
     printf("Primero, ingrese la cantidad de alumnos: ");
     scanf("%i", &cantidad_alumnos);
     getchar();
 
-    agrega_alumnos(cab, inicio, cantidad_alumnos);
+    agrega_alumnos(cab, cantidad_alumnos);
     
     do{
         printf("\n---MENU---\n");
         printf("1. Mostrar listas\n");
         printf("2. Tomar asistencia\n");
         printf("3. Ordenar alumnos");
-        printf("4. Salir\n");
+        printf("4. Modificar lista de alumnos\n");
+        printf("5. Salir\n");
         printf("Elige una opcion: ");
         scanf("%i", &opcion);
         getchar();
@@ -111,7 +108,7 @@ int main(){
                             break;
                         }
 
-                        case 3:{
+                        case 3:{ //Falta cambiar a TFECHA
                             TFECHA fecha;
 
                             printf("Imgresa el numero del dia: ");
@@ -191,25 +188,63 @@ int main(){
                 break;
             }
 
-            case 4:
+            case 4:{
+                int opc;
+
+                printdf("\n---MENU MODIFICAR---\n");
+                printf("1. Agregar nuevo alumno\n");
+                printf("2. Eliminar alumno existente\n");
+                printf("3. Regresar al menu principal\n");
+
+                printf("Elige una opcion: ");
+                scanf("%i", &opc);
+                getchar();
+
+                if(cab == NULL){
+                    printf("La lista esta vacia\n");
+                    printf("Regresando al menú principal...\n");
+                    break;
+                }else{
+                    switch(opc){
+                        case 1:{
+                            TNOMBRE *nombre;
+                            int cantidad_nuevos;
+
+                            printf("Cuantos alumnos nuevos deseas agregar? ");
+                            scanf("%i", &cantidad_nuevos);
+
+                            agrega_alumnos(cab, cantidad_nuevos);
+                            break;
+                        }
+
+                        case 2:{
+                            int ID;
+                            bool confirmacion = false;
+
+                            printf("Ingresa el ID del alumno a eliminar: ");
+                            scanf("%i", &ID);
+
+                            elimiminar_alumno(&cab, ID, &confirmacion);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            case 5:{
                 printf("Saliendo...\n");
                 break;
-            default:
+            }
+
+            default:{
                 printf("Opcion no valida\n");
+            }
         }
     }while(opcion != 4);
-
-    while (cabeza != NULL) {
-        temp = cabeza;
-        cabeza = cabeza->siguiente;
-        free(temp->asistencias);
-        free(temp);
-    }
 
     return 0;
 }
 
-/*--- Definiciones de Funciones ---*/
 
 void ordenar_alfabeticamente(TDIA *cab){
     TDIA *dia_aux;
@@ -327,6 +362,7 @@ void ordenar_por_ID(TDIA *cab){
     }
 }
 
+
 void mostrar_listas(TDIA *cab){
     TDIA *dia_aux;
     TALUMNO *alumno_aux;
@@ -442,6 +478,34 @@ void mostrar_ID(TDIA *cab, int ID){
     }
 }
 
+
+void eliminar_alumno(TALUMNO **cab, int ID, bool *confirmacion){
+    TALUMNO *aux, *anterior = NULL;
+
+    aux = *cab;
+
+    while(aux != NULL && aux->ID != ID){
+        anterior = aux;
+        aux = aux->siguiente;
+    }
+
+    if(aux == NULL){
+        printf("No se encontro al alumno con el ID-%i\n", ID);
+        *confirmacion = false;
+        return;
+    }
+
+    if(anterior == NULL){
+        *cab = aux->siguiente;
+    }else{
+        anterior->siguiente = aux->siguiente;
+    }
+
+    free(aux);
+    printf("Alumno con el ID-%i eliminado exitosamente\n", ID);
+    *confirmacion = true;
+}
+
 void crea_dia(TDIA **cab_dia, TALUMNO *lista_original, TFECHA fecha){
     TDIA *nuevo;
     TFECHA fecha_aux;
@@ -480,7 +544,7 @@ void crea_dia(TDIA **cab_dia, TALUMNO *lista_original, TFECHA fecha){
     }
 }
 
-void agrega_alumnos(TALUMNO *cab, TALUMNO *inicio, int cantidad_alumnos){
+void agrega_alumnos(TALUMNO *cab, int cantidad_alumnos){
     TALUMNO *nuevo, *aux;
     TNOMBRE nombre;
 
@@ -508,7 +572,6 @@ void agrega_alumnos(TALUMNO *cab, TALUMNO *inicio, int cantidad_alumnos){
 
         if(cab == NULL){
             cab = nuevo;
-            inicio = cab;
         }else{
             aux = cab;
             while(aux->siguiente != NULL){
@@ -592,82 +655,3 @@ void tomar_lista(TDIA *cab){
         lista_aux = lista_aux->siguiente;
     }
 }
-
-/*
-Nodo* crearnodo(char nombre[]) {
-    Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
-    if (nuevo != NULL) {
-        strcpy(nuevo->nombre, nombre);
-        nuevo->asistencias = NULL;
-        nuevo->numDias = 0;
-        nuevo->siguiente = NULL;
-    }
-    return nuevo;
-}
-
-Nodo* insertarinicio(Nodo* cabeza, char nombre[]) {
-    Nodo* nuevo = crearnodo(nombre);
-    nuevo->siguiente = cabeza;
-    return nuevo;
-}
-
-void tomarAsistencia(Nodo* cabeza, int dia) {
-    Nodo* actual = cabeza;
-    char respuesta;
-
-    if (cabeza == NULL) {
-        printf("No hay alumnos en la lista.\n");
-        return;
-    }
-    
-    printf("\nTomando asistencia para el Dia %d:\n", dia);
-    while (actual != NULL) {
-        actual->asistencias = (int*) realloc(actual->asistencias, (actual->numDias + 1) * sizeof(int));
-        if (actual->asistencias == NULL) {
-            printf("Error de memoria.\n");
-            exit(1);
-        }
-
-        printf("%s (p/a): ", actual->nombre);
-        scanf(" %c", &respuesta);
-        if (respuesta == 'p' || respuesta == 'P')
-            actual->asistencias[actual->numDias] = 1;
-        else
-            actual->asistencias[actual->numDias] = 0;
-
-        actual->numDias++;
-        actual = actual->siguiente;
-    }
-}
-
-void mostrarlista(Nodo* cabeza) {
-    Nodo* actual = cabeza;
-    int presentes;
-    int ausentes;
-
-    if (cabeza == NULL) {
-        printf("La lista está vacía.\n");
-        return;
-    }
-
-    printf("\nRegistro de alumnos:\n");
-
-    while (actual != NULL) {
-        presentes = 0;
-        ausentes = 0;
-        printf("%s: ", actual->nombre);
-        
-        for (int i = 0; i < actual->numDias; i++) {
-            if (actual->asistencias[i] == 1) {
-                printf("P ");
-                presentes++;
-            } else {
-                printf("A ");
-                ausentes++;
-            }
-        }
-        printf("| P: %d, A: %d\n", presentes, ausentes);
-        actual = actual->siguiente;
-    }
-}
-*/
