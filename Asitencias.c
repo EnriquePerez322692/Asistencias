@@ -262,6 +262,38 @@ int main(){
 }
 
 
+void libera_todo(TDIA **cab_dia, TALUMNO **cab){
+    TDIA *dia_aux, *dia_liberado;
+    TALUMNO *alumno_aux, *alumno_liberado;
+
+    dia_aux = cab_dia;
+    alumno_aux = *cab;
+
+    while(alumno_aux != NULL){
+        alumno_liberado = alumno_aux;
+        alumno_aux = alumno_aux->siguiente;
+        free(alumno_liberado);
+    }
+
+    *cab = NULL;
+
+    while(dia_aux != NULL){
+        alumno_aux = dia_aux->lista_alumnos;
+
+        while(alumno_aux != NULL){
+            alumno_liberado = alumno_aux;
+            alumno_aux = alumno_aux->siguiente;
+            free(alumno_liberado);
+        }
+
+        dia_liberado = dia_aux;
+        dia_aux = dia_aux->siguiente;
+        free(dia_liberado);
+    }
+
+    *cab_dia = NULL;
+}
+
 void ordenar_alfabeticamente(TDIA *cab_dia){
     TDIA *dia_aux;
     TALUMNO *alumno_i, *alumno_j;
