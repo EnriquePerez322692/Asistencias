@@ -6,7 +6,7 @@
 typedef struct fecha{
     int dia;
     int mes;
-    int año;
+    int temporada; //No me deja poner "año" así que me puse creativo con la variable jajaja
 }TFECHA;
 
 typedef struct nombre{
@@ -29,27 +29,24 @@ typedef struct dia{
     TALUMNO *lista_alumnos;
 }TDIA;
 
-void ordenar_alfabeticamente(TDIA *cab);
-void ordenar_por_ID(TDIA *cab);
+void ordenar_alfabeticamente(TDIA *cab_dia);
+void ordenar_por_ID(TDIA *cab_dia);
 
-void mostrar_listas(TDIA *cab);
-void mostrar_alumno(TDIA *cab, TNOMBRE nombre);
-void mostrar_dia(TDIA *cab, TFECHA fecha);
-void mostrar_ID(TDIA *cab, int ID);
+void mostrar_listas(TDIA *cab_dia);
+void mostrar_alumno(TDIA *cab_dia, TNOMBRE nombre);
+void mostrar_dia(TDIA *cab_dia, TFECHA fecha);
+void mostrar_ID(TDIA *cab_dia, int ID);
 
 void elimiminar_alumno(TALUMNO **cab, int ID, bool *confirmacion);
 void crea_dia(TDIA **cab_dia, TALUMNO *lista_original, TFECHA fecha);
 void agrega_alumnos(TALUMNO *cab, int cantidad_alumnos);
 TALUMNO *copiar_lista_alumnos(TALUMNO *original);
-void tomar_asistencia(TALUMNO *cab);
+void tomar_asistencia(TALUMNO *cab_dia);
 
 int main(){
     int opcion, cantidad_alumnos = 0;
-    TNOMBRE nombre; //Estoy corrigiendo al momento de buscar a una alumno y ordenarlo con su nombre
-    TALUMNO *cab;
-    TDIA *cab_dia, *lista_original;
-
-    cab = cab_dia = lista_original = NULL;
+    TALUMNO *cab = NULL;
+    TDIA *cab_dia = NULL;
     
     printf("Primero, ingrese la cantidad de alumnos: ");
     scanf("%i", &cantidad_alumnos);
@@ -88,7 +85,7 @@ int main(){
 
                     switch(opc){
                         case 1:{
-                            mostrar_listas(&cab_dia);
+                            mostrar_listas(cab_dia);
                             break;
                         }
 
@@ -115,8 +112,8 @@ int main(){
                             scanf("%i", &fecha.dia);
                             printf("Ingresa el numero del mes: ");
                             scanf("%i", &fecha.mes);
-                            printf("Ingresa el numero del año: ");
-                            scanf("%i", &fecha.año);
+                            printf("Ingresa el numero del temporada: ");
+                            scanf("%i", &fecha.temporada);
 
                             mostrar_dia(cab_dia, fecha);
 
@@ -172,12 +169,12 @@ int main(){
 
                     switch(opc){
                         case 1:{
-                            ordenar_alfabeticamente(&cab_dia);
+                            ordenar_alfabeticamente(cab_dia);
                             break;
                         }
 
                         case 2:{
-                            ordenar_por_ID(&cab_dia);
+                            ordenar_por_ID(cab_dia);
                             break;
                         }
 
@@ -191,7 +188,7 @@ int main(){
             case 4:{
                 int opc;
 
-                printdf("\n---MENU MODIFICAR---\n");
+                printf("\n---MENU MODIFICAR---\n");
                 printf("1. Agregar nuevo alumno\n");
                 printf("2. Eliminar alumno existente\n");
                 printf("3. Regresar al menu principal\n");
@@ -207,7 +204,6 @@ int main(){
                 }else{
                     switch(opc){
                         case 1:{
-                            TNOMBRE *nombre;
                             int cantidad_nuevos;
 
                             printf("Cuantos alumnos nuevos deseas agregar? ");
@@ -225,7 +221,23 @@ int main(){
                             scanf("%i", &ID);
 
                             elimiminar_alumno(&cab, ID, &confirmacion);
+
+                            if(confirmacion){
+                                printf("Alumno eliminado exitosamente\n");
+                            }else{
+                                printf("No se pudo eliminar al alumno\n");
+                            }
+
                             break;
+                        }
+
+                        case 3:{
+                            printf("Regresando al menu principal...\n");
+                            break;
+                        }
+
+                        default:{
+                            printf("Opcion no valida\n");
                         }
                     }
                 }
@@ -246,14 +258,14 @@ int main(){
 }
 
 
-void ordenar_alfabeticamente(TDIA *cab){
+void ordenar_alfabeticamente(TDIA *cab_dia){
     TDIA *dia_aux;
     TALUMNO *alumno_i, *alumno_j;
     TNOMBRE aux_nombre;
     int aux_ID;
     bool aux_asistencia;
 
-    dia_aux = cab;
+    dia_aux = cab_dia;
 
     if(dia_aux == NULL){
         printf("La lista de dias esta vacia\n");
@@ -304,14 +316,14 @@ void ordenar_alfabeticamente(TDIA *cab){
     }
 }
 
-void ordenar_por_ID(TDIA *cab){
+void ordenar_por_ID(TDIA *cab_dia){
     TDIA *dia_aux;
     TALUMNO *alumno_i, *alumno_j;
     TNOMBRE aux_nombre;
     int aux_ID;
     bool aux_asistencia;
 
-    dia_aux = cab;
+    dia_aux = cab_dia;
 
     if(dia_aux == NULL){
         printf("La lista de dias esta vacia\n");
@@ -363,11 +375,11 @@ void ordenar_por_ID(TDIA *cab){
 }
 
 
-void mostrar_listas(TDIA *cab){
+void mostrar_listas(TDIA *cab_dia){
     TDIA *dia_aux;
     TALUMNO *alumno_aux;
 
-    dia_aux = cab;
+    dia_aux = cab_dia;
 
     if(dia_aux == NULL){
         printf("La lista de dias esta vacia\n");
@@ -378,7 +390,7 @@ void mostrar_listas(TDIA *cab){
         alumno_aux = dia_aux->lista_alumnos;
 
         printf("Listas totales de asistencias usadas:\n");
-        printf("\tFecha: %i/%i/%i\n", dia_aux->fecha.dia, dia_aux->fecha.mes, dia_aux->fecha.año);
+        printf("\tFecha: %i/%i/%i\n", dia_aux->fecha.dia, dia_aux->fecha.mes, dia_aux->fecha.temporada);
         
         while(alumno_aux != NULL){
             printf("\t\tID: %i, Nombre: %s %s %s, Asistencia: %s\n", alumno_aux->ID, alumno_aux->nombre.nombres, alumno_aux->nombre.apell_p, alumno_aux->nombre.apell_m, alumno_aux->asistencias? "Presente" : "Ausente"); //Nms, no sabía que se podía poner un "if" en una printf de esa manera :o
@@ -390,12 +402,12 @@ void mostrar_listas(TDIA *cab){
     }
 }
 
-void mostrar_alumno(TDIA *cab, TNOMBRE nombre){
+void mostrar_alumno(TDIA *cab_dia, TNOMBRE nombre){
     TDIA *dia_aux;
     TALUMNO *alumno_aux;
     bool encontrado = false;
 
-    dia_aux = cab;
+    dia_aux = cab_dia;
 
     printf("Asistencias del alumno %s %s %s:\n", nombre.nombres, nombre.apell_p, nombre.apell_m);
 
@@ -404,7 +416,7 @@ void mostrar_alumno(TDIA *cab, TNOMBRE nombre){
 
         while(alumno_aux != NULL){
             if((strcmp(alumno_aux->nombre.nombres, nombre.nombres) == 0) && (strcmp(alumno_aux->nombre.apell_p, nombre.apell_p) == 0) && (strcmp(alumno_aux->nombre.apell_m, nombre.apell_m) == 0)){
-                printf("\t%i %i %i: %s\n", dia_aux->fecha.dia, dia_aux->fecha.mes, dia_aux->fecha.año, alumno_aux->asistencias? "Presente" : "Ausente");
+                printf("\t%i %i %i: %s\n", dia_aux->fecha.dia, dia_aux->fecha.mes, dia_aux->fecha.temporada, alumno_aux->asistencias? "Presente" : "Ausente");
                 encontrado = true;
 
                 break;
@@ -421,25 +433,23 @@ void mostrar_alumno(TDIA *cab, TNOMBRE nombre){
     }
 }
 
-void mostrar_dia(TDIA *cab, TFECHA fecha){
+void mostrar_dia(TDIA *cab_dia, TFECHA fecha){
     TDIA *dia_aux;
     TALUMNO *alumno_aux;
-    bool encontrado = false;
 
-    dia_aux = cab;
+    dia_aux = cab_dia;
 
     while(dia_aux != NULL){
-        if((dia_aux->fecha.dia == fecha.dia) && (dia_aux->fecha.mes == fecha.mes) && (dia_aux->fecha.año == fecha.año)){
+        if((dia_aux->fecha.dia == fecha.dia) && (dia_aux->fecha.mes == fecha.mes) && (dia_aux->fecha.temporada == fecha.temporada)){
             alumno_aux = dia_aux->lista_alumnos;
 
-            printf("Asistencias del dia %i/%i/%i:\n", fecha.dia, fecha.mes, fecha.año);
+            printf("Asistencias del dia %i/%i/%i:\n", fecha.dia, fecha.mes, fecha.temporada);
 
             while(alumno_aux != NULL){
                 printf("\tID: %i, Nombre: %s %s %s, Asistencia: %s\n", alumno_aux->ID, alumno_aux->nombre.nombres, alumno_aux->nombre.apell_p, alumno_aux->nombre.apell_m, alumno_aux->asistencias? "Presente" : "Ausente");
                 alumno_aux = alumno_aux->siguiente;
             }
 
-            encontrado = true;
             break;
         }
 
@@ -447,12 +457,12 @@ void mostrar_dia(TDIA *cab, TFECHA fecha){
     }
 }
 
-void mostrar_ID(TDIA *cab, int ID){
+void mostrar_ID(TDIA *cab_dia, int ID){
     TDIA *dia_aux;
     TALUMNO *alumno_aux;
     bool encontrado = false;
 
-    dia_aux = cab;
+    dia_aux = cab_dia;
 
     printf("Asistencias del alumno con el ID-%i:\n", ID);
 
@@ -461,7 +471,7 @@ void mostrar_ID(TDIA *cab, int ID){
 
         while(alumno_aux != NULL){
             if(alumno_aux->ID == ID){
-                printf("\t%i %i %i: %s\n", dia_aux->fecha.dia, dia_aux->fecha.mes, dia_aux->fecha.año, alumno_aux->asistencias? "Presente" : "Ausente");
+                printf("\t%i %i %i: %s\n", dia_aux->fecha.dia, dia_aux->fecha.mes, dia_aux->fecha.temporada, alumno_aux->asistencias? "Presente" : "Ausente");
                 encontrado = true;
 
                 break;
@@ -481,6 +491,7 @@ void mostrar_ID(TDIA *cab, int ID){
 
 void eliminar_alumno(TALUMNO **cab, int ID, bool *confirmacion){
     TALUMNO *aux, *anterior = NULL;
+    int respuesta = 0;
 
     aux = *cab;
 
@@ -492,6 +503,7 @@ void eliminar_alumno(TALUMNO **cab, int ID, bool *confirmacion){
     if(aux == NULL){
         printf("No se encontro al alumno con el ID-%i\n", ID);
         *confirmacion = false;
+
         return;
     }
 
@@ -501,14 +513,24 @@ void eliminar_alumno(TALUMNO **cab, int ID, bool *confirmacion){
         anterior->siguiente = aux->siguiente;
     }
 
-    free(aux);
-    printf("Alumno con el ID-%i eliminado exitosamente\n", ID);
-    *confirmacion = true;
+    do{
+    printf("Esta seguro de eliminar al alumno %s %s %s (ID-%i)? (1 para si, 0 para no): ", aux->nombre.nombres, aux->nombre.apell_p, aux->nombre.apell_m, aux->ID);
+    scanf("%i", &respuesta);
+    }while(respuesta == 0 || respuesta == 1);
+
+    if(!respuesta){
+        printf("Operacion cancelada, el alumno no fue eliminado\n");
+        *confirmacion = false;
+        return;
+    }else{
+        free(aux);
+        printf("Alumno con el ID-%i eliminado exitosamente\n", ID);
+        *confirmacion = true;
+    }
 }
 
 void crea_dia(TDIA **cab_dia, TALUMNO *lista_original, TFECHA fecha){
     TDIA *nuevo;
-    TFECHA fecha_aux;
 
     nuevo = (TDIA*) malloc(sizeof(TDIA));
 
@@ -521,12 +543,12 @@ void crea_dia(TDIA **cab_dia, TALUMNO *lista_original, TFECHA fecha){
     scanf("%i", &fecha.dia);
     printf("\nIngresa el numero del mes: ");
     scanf("%i", &fecha.mes);
-    printf("\nIngresa el numero del año: ");
-    scanf("%i", &fecha.año);
+    printf("\nIngresa el numero del temporada: ");
+    scanf("%i", &fecha.temporada);
 
     nuevo->fecha.dia = fecha.dia;
     nuevo->fecha.mes = fecha.mes;
-    nuevo->fecha.año = fecha.año;
+    nuevo->fecha.temporada = fecha.temporada;
     nuevo->asistencia_del_dia = false;
     nuevo->siguiente = NULL;
     nuevo->lista_alumnos = copiar_lista_alumnos(lista_original);
@@ -632,11 +654,11 @@ TALUMNO *copiar_lista_alumnos(TALUMNO *original){
     return nuevo_cab;
 }
 
-void tomar_lista(TDIA *cab){
+void tomar_asistencia(TALUMNO *cab_dia){
     TDIA *aux;
     TALUMNO *lista_aux;
 
-    aux = cab;
+    aux = cab_dia;
 
     while(aux->siguiente !=  NULL){
         aux = aux->siguiente;
@@ -646,10 +668,12 @@ void tomar_lista(TDIA *cab){
     aux->asistencia_del_dia = true;
 
     while(lista_aux != NULL){
-        bool respuesta;
+        int respuesta;
 
-        printf("El alumno %s %s %s asistio el dia de hoy (%i/%i/%i)? (1 para si, 0 para no): ", lista_aux->nombre.nombres, lista_aux->nombre.apell_p, lista_aux->nombre.apell_m, aux->fecha.dia, aux->fecha.mes, aux->fecha.año);
+        do{
+        printf("El alumno %s %s %s asistio el dia de hoy (%i/%i/%i)? (1 para si, 0 para no): ", lista_aux->nombre.nombres, lista_aux->nombre.apell_p, lista_aux->nombre.apell_m, aux->fecha.dia, aux->fecha.mes, aux->fecha.temporada);
         scanf("%i", &respuesta);
+        }while(respuesta == 0 || respuesta == 1);
 
         lista_aux->asistencias = respuesta;
         lista_aux = lista_aux->siguiente;
