@@ -266,7 +266,7 @@ void libera_todo(TDIA **cab_dia, TALUMNO **cab){
     TDIA *dia_aux, *dia_liberado;
     TALUMNO *alumno_aux, *alumno_liberado;
 
-    dia_aux = cab_dia;
+    dia_aux = *cab_dia;
     alumno_aux = *cab;
 
     while(alumno_aux != NULL){
@@ -617,16 +617,13 @@ void agrega_alumnos(TALUMNO **cab, int cantidad_alumnos){
         }
 
         printf("Ingresa el nombre del alumno %d: \n", i+1);
-        fgets(nombre.nombres, sizeof(nombre.nombres), stdin);
-        nombre.nombres[strcspn(nombre.nombres, "\n")] = '\0';
+        gets(nombre.nombres);
         
         printf("Ingresa el apellido paterno del alumno %d: \n", i+1);
-        fgets(nombre.apell_p, sizeof(nombre.apell_p), stdin);
-        nombre.apell_p[strcspn(nombre.apell_p, "\n")] = '\0';
+        gets(nombre.apell_p);
 
         printf("Ingresa el apellido materno del alumno %d: \n", i+1);
-        fgets(nombre.apell_m, sizeof(nombre.apell_m), stdin);
-        nombre.apell_m[strcspn(nombre.apell_m, "\n")] = '\0';
+        gets(nombre.apell_m);
 
         strcpy(nuevo->nombre.nombres, nombre.nombres);
         strcpy(nuevo->nombre.apell_p, nombre.apell_p);
@@ -653,46 +650,33 @@ TALUMNO *copiar_lista_alumnos(TALUMNO *original){
         return NULL;
     }
 
-    TALUMNO *nuevo_cab = NULL;
-    TALUMNO *nuevo = (TALUMNO*) malloc(sizeof(TALUMNO));
-    TALUMNO *actual_original = original->siguiente;
-    TALUMNO *actual_nuevo = nuevo_cab;
+    TALUMNO *nuevo_cab = NULL, *ultimo = NULL, *actual = original;
 
-    if(nuevo == NULL){
-        printf("Error de memoria\n");
-        exit(1);
-    }
-
-    //copiar los datos del nodo original al nuevo nodo
-    strcpy(nuevo->nombre.nombres, original->nombre.nombres);
-    strcpy(nuevo->nombre.apell_p, original->nombre.apell_p);
-    strcpy(nuevo->nombre.apell_m, original->nombre.apell_m);
-    
-    nuevo->asistencias = original->asistencias;
-    nuevo->ID = original->ID;
-    nuevo->siguiente = NULL;
-    nuevo_cab = nuevo;
-
-    //copiar los nodos restantes
-    while(actual_original != NULL){
-        nuevo = (TALUMNO*) malloc(sizeof(TALUMNO));
+    while(actual != NULL){
+        TALUMNO *nuevo = (TALUMNO*) malloc(sizeof(TALUMNO));
 
         if(nuevo == NULL){
             printf("Error de memoria\n");
             exit(1);
         }
 
-        strcpy(nuevo->nombre.nombres, actual_original->nombre.nombres);
-        strcpy(nuevo->nombre.apell_p, actual_original->nombre.apell_p);
-        strcpy(nuevo->nombre.apell_m, actual_original->nombre.apell_m);
+        strcpy(nuevo->nombre.nombres, actual->nombre.nombres);
+        strcpy(nuevo->nombre.apell_p, actual->nombre.apell_p);
+        strcpy(nuevo->nombre.apell_m, actual->nombre.apell_m);
 
-        nuevo->asistencias = actual_original->asistencias;
-        nuevo->ID = actual_original->ID;
+        nuevo->asistencias = actual->asistencias;
+        nuevo->ID = actual->ID;
         nuevo->siguiente = NULL;
 
-        actual_nuevo->siguiente = nuevo;
-        actual_nuevo = nuevo;
-        actual_original = actual_original->siguiente;
+        if(nuevo_cab == NULL){
+            nuevo_cab = nuevo;
+            ultimo = nuevo;
+        } else {
+            ultimo->siguiente = nuevo;
+            ultimo = nuevo;
+        }
+
+        actual = actual->siguiente;
     }
 
     return nuevo_cab;
